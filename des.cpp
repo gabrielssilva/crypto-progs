@@ -8,13 +8,13 @@ uint64_t initial_permutation(uint64_t block, const int* indexes)
 {
   uint64_t original = block;
 
+  // permute each bit
   for (int i=0; i<64; i++)
   {
-    int pos_a = i;
-    int pos_b = indexes[i]-1;
+    int new_pos = indexes[i]-1;
 
-    uint64_t diff = ((original >> pos_a) & 1) ^ ((original >> pos_b) & 1);
-    diff = (diff << pos_b);
+    uint64_t diff = ((original >> i) & 1) ^ ((original >> new_pos) & 1);
+    diff = (diff << new_pos);
     block = block ^ diff;
   }
 
