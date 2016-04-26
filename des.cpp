@@ -1,5 +1,7 @@
 #include <iostream>
 #include <stdint.h>
+#include <bitset>
+#include <string>
 #include "des_constants.h"
 
 using namespace std;
@@ -21,67 +23,53 @@ uint64_t initial_permutation(uint64_t block, const int* indexes)
   return output;
 }
 
-uint64_t expansion(uint32_t input)
+bitset<48> expansion(bitset<32> input)
 {
-  uint64_t output = 0; // actually, has only 48 bits
+  bitset<48> output;
 
   for (int i=0; i<48; i++)
   {
     int new_bit_pos = DESConstants::E_INDEXES[i] - 1;
-
-    uint64_t new_bit = (input >> new_bit_pos) & 1;
-    output |= (new_bit << i);
+    output[47 - i] = input[31 - new_bit_pos];
   }
 
   return output;
 }
 
-void generate_keys(uint64_t k, uint64_t *keys)
+void generate_keys(bitset<64> k, bitset<48> *keys)
 {
-  const uint32_t MASK_28_BITS = 268435455;
-  uint64_t permuted_k = 0; // actually, only 56 bits
+  const bitset<28> MASK_28_BITS = 268435455;
+  bitset<56> permuted_k; // actually, only 56 bits
 
-  cout << k << endl;
-  
   // Same permutation as expansion, only the indexes are different
   for (int i=0; i<56; i++)
   {
     int new_bit_pos = DESConstants::PC1_INDEXES[i] - 1;
-    uint64_t new_bit = (k >> new_bit_pos) & 1;
-    permuted_k |= (new_bit << i);
+    permuted_k[55 - i] = k[63 - new_bit_pos];
   }
 
-  cout << "k after PC1: " << permuted_k << endl;
-
   // left and right slices. Only 28 bits each
-  uint32_t c, d;
-  c = (permuted_k >> 28) & MASK_28_BITS;
-  d = permuted_k & MASK_28_BITS;
-
-  cout << c << " << " << d << endl;
+  bitset<28> c(permuted_k.to_string());
+  bitset<28> d((permuted_k << 28).to_string());
 
   for (int i=0; i<16; i++)
   {
     int shift = DESConstants::SHIFT_SCHEDULE[i];
     // circular shift
-    c = ((c << shift) | (c >> (28 - shift))) & MASK_28_BITS; 
-    d = ((d << shift) | (d >> (28 - shift))) & MASK_28_BITS; 
-    cout << c << " <<" << shift << "<< " << d << endl;
+    c = (c << shift) | (c >> (c.size() - shift)); 
+    d = (d << shift) | (d >> (d.size() - shift)); 
 
-    uint64_t ki = 0; // actually, only 48 bits
-    uint64_t c_d = c;
-    c_d = (c_d << 28) | d; // only 56 bits
+    bitset<48> ki;
+    bitset<56> c_d(c.to_string() + d.to_string());
 
     // Same permutation as expansion. Again
     for (int j=0; j<48; j++)
     {
       int new_bit_pos = DESConstants::PC2_INDEXES[j] - 1;
-      uint64_t new_bit = (c_d >> new_bit_pos) & 1;
-      ki |= (new_bit << j);
+      ki[47 - j] = c_d[55 - new_bit_pos];
     }
 
     keys[i] = ki;
-    cout << "k" << i+1 << ": " << keys[i] << endl;
   }  
 }
 
@@ -93,10 +81,11 @@ uint64_t round(uint64_t input, uint64_t key)
   memcpy(&l_slice, p, sizeof(uint32_t));
   memcpy(&r_slice, (p + 1), sizeof(uint32_t));
 
-  // Substitution Step
+  // Substitution Step (f)
 
-  // Function...
-  // r_slice = ...
+  //uint64_t expanded_r = expansion(r_slice);
+  //expanded_r ^= key; 
+
 
   // Permutation step
 
@@ -110,9 +99,12 @@ uint64_t round(uint64_t input, uint64_t key)
 
 int main(int argc, char **argv)
 {
-  uint64_t keys[64], k;
-  cin >> k;
-  
+  string s_k;
+  cin >> s_k;
+
+  bitset<48> keys[16];
+  bitset<64> k (s_k);
+
   generate_keys(k, keys);
 
   return 0;

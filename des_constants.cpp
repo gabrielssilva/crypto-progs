@@ -45,3 +45,4 @@ const int DESConstants::PC2_INDEXES[48] = { 14, 17, 11, 24, 1, 5, 3, 28,
 
 const int DESConstants::SHIFT_SCHEDULE[16] = { 1, 1, 2, 2, 2, 2, 2, 2, 
                                                1, 2, 2, 2, 2, 2, 2, 1 };
+
