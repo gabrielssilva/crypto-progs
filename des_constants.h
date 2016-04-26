@@ -6,6 +6,7 @@ class DESConstants
   public:
     static const int IP_INDEXES[64];
     static const int INV_IP_INDEXES[64];
+    static const int E_INDEXES[48];
 };
 
 #endif

@@ -4,24 +4,40 @@
 
 using namespace std;
 
+
 uint64_t initial_permutation(uint64_t block, const int* indexes)
 {
-  uint64_t original = block;
+  uint64_t output = 0;
 
   // permute each bit
   for (int i=0; i<64; i++)
   {
-    int new_pos = indexes[i]-1;
+    int new_bit_pos = indexes[i]-1;
 
-    uint64_t diff = ((original >> i) & 1) ^ ((original >> new_pos) & 1);
-    diff = (diff << new_pos);
-    block = block ^ diff;
+    uint64_t new_bit = ((block >> i) & 1);
+    output |= (new_bit << new_bit_pos);
   }
 
-  return block;
+  return output;
 }
 
-uint64_t round(uint64_t input) {
+uint64_t expansion(uint32_t input)
+{
+  uint64_t output = 0; // actually, has only 48 bits
+
+  for (int i=0; i<48; i++)
+  {
+    int new_bit_pos = DESConstants::E_INDEXES[i] - 1;
+
+    uint64_t new_bit = (input >> new_bit_pos) & 1;
+    output |= (new_bit << i);
+  }
+
+  return output;
+}
+
+uint64_t round(uint64_t input)
+{
   uint32_t l_slice, r_slice;
   uint32_t *p = (uint32_t*) &input;
 
@@ -45,14 +61,11 @@ uint64_t round(uint64_t input) {
 
 int main(int argc, char **argv)
 {
-  uint64_t in = 1; 
+  uint32_t in = 1;
   cin >> in;
-  uint64_t out = initial_permutation(in, DESConstants::IP_INDEXES); 
-  uint64_t inv_out = initial_permutation(out, DESConstants::INV_IP_INDEXES); 
-
+  uint64_t out = expansion(in);
 
   cout << "in: " << in << endl;
   cout << "out: " << out << endl;
-  cout << "inv_out: " << inv_out << endl;
   return 0;
 }
