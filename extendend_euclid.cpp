@@ -2,48 +2,45 @@
 
 using namespace std;
 
-int gcd_round(int a, int b, int *x, int *y) 
+int gcd(int a, int b, int *x, int *y) 
 { 
   if (b == 0)
   {
     *x = 1;
     *y = 0;
-    cout << "Stage: a = " << a << ", b = " << b << endl;
-    cout << "x = " << *x << ", y = " << *y << endl;
-    cout << endl;
     return a;
   }
   
   int xn, yn;
   int r = a%b;
   int q = a / b;
-  int d = gcd_round(b, r, &xn, &yn);
+  int d = gcd(b, r, &xn, &yn);
 
   *x = yn;
   *y = xn - q * yn;
 
-  cout << "Stage: a = " << a << ", b = " << b << endl;
-  cout << "x = " << *x << ", y = " << *y << endl;
-  cout << "xn = " << xn << ", yn = " << yn << ", q = " << q << endl;
-  cout << endl;
-
   return d;
-}
-
-int gcd(int a, int b, int *x, int *y)
-{
-  return gcd_round(a, b, x, y);
 }
 
 int main(int argc, char **argv)
 {
-  int a, b, x, y;
+  int d, x, y;
 
-  cin >> a >> b;
-  int d = gcd(a, b, &x, &y);
+  d = gcd(17331, 3041, &x, &y);
+  cout << "[a] " << d << " = " << x << "*17331 + " << y << "*3041" << endl;
+  cout << "Multiplicative inverse of 3041 mod 17331 = " << y << endl << endl;
 
-  cout << "GCD = " << d;
-  cout << " = " << x << "*" << a << " + " << y << "*" << b << endl;
+  d = gcd(21753, 213, &x, &y);
+  cout << "[b] " << d << " = " << x << "*21753 + " << y << "*213" << endl;
+  cout << "21753 and 213 are not relatively primes." << endl << endl;
+
+  d = gcd(9571, 548, &x, &y);
+  cout << "[c] " << d << " = " << x << "*9571 + " << y << "*548" << endl;
+  cout << "Multiplicative inverse of 548 mod 9571 = " << y << endl << endl;
+
+  d = gcd(68432, 24573, &x, &y);
+  cout << "[d] " << d << " = " << x << "*68432 + " << y << "*24573" << endl;
+  cout << "Multiplicative inverse of 24573 mod 68432 = " << y << endl << endl;
 
   return 0;
 }
