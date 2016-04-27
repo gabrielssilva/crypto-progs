@@ -12,14 +12,8 @@ class DESConstants
     static const int PC2_INDEXES[48];
     static const int SHIFT_SCHEDULE[16];
 
-    static const int S1[64];
-    static const int S2[64];
-    static const int S3[64];
-    static const int S4[64];
-    static const int S5[64];
-    static const int S6[64];
-    static const int S7[64];
-    static const int S8[64];
+    static const int P[32];
+    static const int S[8][64];
 };
 
 #endif
