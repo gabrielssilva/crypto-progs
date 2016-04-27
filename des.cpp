@@ -104,18 +104,8 @@ bitset<64> round(bitset<64> input, bitset<48> key)
   memcpy(&r_slice, p, sizeof(uint32_t));
   memcpy(&l_slice, (p + 1), sizeof(uint32_t));
 
-  cout << l_slice << " " << r_slice << endl;
-
-  // Substitution Step (f)
-
   bitset<48> expanded_r = expansion(r_slice);
-  
-  cout << "E(R) " << expanded_r << endl;
-
   bitset<32> s_result = apply_s_box(expanded_r ^ key);
-
-  cout << "E(R) ^ K " << (expanded_r ^ key) << endl;
-  cout << "S " << s_result << endl;
 
   bitset<32> new_r; 
 
@@ -124,13 +114,31 @@ bitset<64> round(bitset<64> input, bitset<48> key)
     int new_bit_pos = DESConstants::P[i] - 1;
     new_r[31 - i] = s_result[31 - new_bit_pos];
   }
-
-  cout << new_r << endl;
+  new_r ^= l_slice;
 
   // Permutation step
-
-  bitset<64> output(l_slice.to_string() + new_r.to_string());
+  bitset<64> output(r_slice.to_string() + new_r.to_string());
   return output;  
+}
+
+bitset<64> des_crypt(bitset<64> block, bitset<48> *keys)
+{
+  block = initial_permutation(block, DESConstants::IP_INDEXES);
+
+  for (int i=0; i<16; i++)
+  {
+    block = round(block, keys[i]);
+  }
+
+  // Final swap before last permutation
+  bitset<32> l_slice, r_slice;
+  uint32_t *p = (uint32_t*) &block;
+
+  memcpy(&r_slice, p, sizeof(uint32_t));
+  memcpy(&l_slice, (p + 1), sizeof(uint32_t));
+  bitset<64> swaped_block(r_slice.to_string() + l_slice.to_string());
+
+  return initial_permutation(swaped_block, DESConstants::INV_IP_INDEXES);
 }
 
 
@@ -144,12 +152,7 @@ int main(int argc, char **argv)
   bitset<64> block (s_block);
 
   generate_keys(k, keys);
-  cout << "K " << keys[0] << endl;
-  cout << round(block, keys[0]) << endl;
-
-
-//  cout << initial_permutation(k, DESConstants::IP_INDEXES) << endl;
-//  cout << k.size() << endl;
+  cout << des_crypt(block, keys) << endl;
 
   return 0;
 }
