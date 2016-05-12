@@ -1,6 +1,8 @@
 import numpy as np
 from debug_tools import * 
 from aes_constants import BLOCK_SIZE, S_BOX, SHIFT_ROWS_INDEXES
+from aes_constants import MIX_COLUMNS_T
+from galois_operations import gf_ndarray_dot
 
 
 def input_to_blocks(str):
@@ -28,9 +30,14 @@ def shift_rows(block, shift_indexes):
     return block
 
 
-b = block_from_hex("87F24D97EC6E4C904AC346E78CD895A6")
+def mix_columns(block, mix_columns_t):
+    T = np.array(mix_columns_t, dtype=np.uint8)
+    return gf_ndarray_dot(T, block)
+
+
+b = block_from_hex("87F24D976E4C90EC46E74AC3A68CD895")
 key = block_from_hex("0f470caf15d9b77f71e8ad67c959d698")
 
 print_state_as_hex(b)
 print("----")
-print_state_as_hex(shift_rows(b, SHIFT_ROWS_INDEXES))
+print_state_as_hex(mix_columns(b, MIX_COLUMNS_T))
