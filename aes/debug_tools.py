@@ -10,7 +10,7 @@ def block_from_hex(str):
     for i in range(BLOCK_SIZE):
         block[BLOCK_SIZE - 1 - i] = (as_int >> (i*8)) & 0xff
     
-    return block.reshape((STATE_SIZE, STATE_SIZE))
+    return block.reshape((STATE_SIZE, STATE_SIZE)).transpose()
 
 
 def print_state_as_hex(state):

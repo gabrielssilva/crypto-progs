@@ -1,8 +1,11 @@
 import numpy as np
 from debug_tools import * 
-from aes_constants import BLOCK_SIZE, S_BOX, SHIFT_ROWS_INDEXES
-from aes_constants import NUM_ROUNDS, MIX_COLUMNS_T, RC
+from aes_constants import BLOCK_SIZE, NUM_ROUNDS, RC
+from aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
+from aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
+from aes_constants import I_S_BOX, I_SHIFT_ROWS_INDEXES, I_MIX_COLUMNS_T
 from galois_operations import gf_ndarray_dot
+import copy
 
 
 def print_as_hex(block):
@@ -10,7 +13,6 @@ def print_as_hex(block):
     for cell in np.nditer(block):
         print(hex(cell), end=' ')
     print(']')
-
 
 
 def input_to_blocks(str):
@@ -49,11 +51,16 @@ class AESKey():
     def for_round(self, round):
         return self.round_keys[round]
 
+    def inverse(self):
+        inverse_aes_key = copy.deepcopy(self)
+        inverse_aes_key.round_keys = inverse_aes_key.round_keys[::-1]
+        return inverse_aes_key
+
     def expand_key(self, key):
         self.round_keys = []
-        # Always transpose, words are columns and not rows
-        self.round_keys.append(key.transpose())
+        self.round_keys.append(key)
         for i in range(1, NUM_ROUNDS+1):
+            # Always transpose, words are columns and not rows
             previous_key = self.round_keys[i-1].transpose()
             round_key = np.zeros(key.shape, dtype=np.uint8)
             round_key[0] = np.bitwise_xor(self.g(previous_key[3], i),
@@ -71,12 +78,59 @@ class AESKey():
         return new_block
 
 
-b = block_from_hex("87F24D976E4C90EC46E74AC3A68CD895")
+class AESBase():
+    def __init__(self, aes_key):
+        self.aes_key = aes_key
+    
+    def round(self, block, key):
+        pass
+
+    def last_round(self, block, key):
+        pass
+
+    def compute(self, block):
+        block = add_round_key(block, self.aes_key.for_round(0))
+        for i in range(1, NUM_ROUNDS):
+            block = self.round(block, self.aes_key.for_round(i))
+        return self.last_round(block, self.aes_key.for_round(NUM_ROUNDS))
+
+
+class AESCipher(AESBase):
+    def round(self, block, key):
+        block = sub_bytes(block, S_BOX)
+        block = shift_rows(block, SHIFT_ROWS_INDEXES)
+        block = mix_columns(block, MIX_COLUMNS_T)
+        return add_round_key(block, key)
+
+    def last_round(self, block, key):
+        block = sub_bytes(block, S_BOX)
+        block = shift_rows(block, SHIFT_ROWS_INDEXES)
+        return add_round_key(block, key)
+
+
+class AESDecipher(AESBase):
+    def round(self, block, key):
+        block = shift_rows(block, I_SHIFT_ROWS_INDEXES)
+        block = sub_bytes(block, I_S_BOX)
+        block = add_round_key(block, key)
+        return mix_columns(block, I_MIX_COLUMNS_T)
+
+    def last_round(self, block, key):
+        block = shift_rows(block, I_SHIFT_ROWS_INDEXES)
+        block = sub_bytes(block, I_S_BOX)
+        return add_round_key(block, key)
+
+
+b = block_from_hex("0123456789abcdeffedcba9876543210")
 key = block_from_hex("0f1571c947d9e8590cb7add6af7f6798")
 aes_key = AESKey(key)
-
-print_state_as_hex(key)
-for i in range(11):
-    print('round %s' % (i))
-    print_state_as_hex(aes_key.for_round(i))
+print_state_as_hex(b)
+print('-'*20)
+cipher = AESCipher(aes_key)
+c = cipher.compute(b)
+print_state_as_hex(c)
+print('-'*20)
+decipher = AESDecipher(aes_key.inverse())
+d = decipher.compute(c)
+print_state_as_hex(d)
 
