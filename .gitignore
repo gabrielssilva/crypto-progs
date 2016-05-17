@@ -3,4 +3,6 @@
 *.out
 *.swp
 *.gch
+*.pyc
+__pycache__/
 tests/

@@ -1,10 +1,10 @@
 import numpy as np
-from debug_tools import * 
-from aes_constants import BLOCK_SIZE, NUM_ROUNDS, RC
-from aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
-from aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
-from aes_constants import I_S_BOX, I_SHIFT_ROWS_INDEXES, I_MIX_COLUMNS_T
-from galois_operations import gf_ndarray_dot
+from .debug_tools import * 
+from .aes_constants import BLOCK_SIZE, NUM_ROUNDS, RC
+from .aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
+from .aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
+from .aes_constants import I_S_BOX, I_SHIFT_ROWS_INDEXES, I_MIX_COLUMNS_T
+from .galois_operations import gf_ndarray_dot
 import copy
 
 
