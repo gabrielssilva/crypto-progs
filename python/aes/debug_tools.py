@@ -13,6 +13,14 @@ def block_from_hex(str):
     return block.reshape((STATE_SIZE, STATE_SIZE)).transpose()
 
 
+def state_to_long(state):
+    state_as_long = 0
+    for cell in np.nditer(state):
+        state_as_long <<= 8
+        state_as_long |= int(cell)
+    return state_as_long
+
+
 def print_state_as_hex(state):
     rows, cols = state.shape
     for i in range(rows):

@@ -15,11 +15,6 @@ def print_as_hex(block):
     print(']')
 
 
-def input_to_blocks(str):
-    for i in range(0, len(str), BLOCK_SIZE):
-        block = str[i:i + BLOCK_SIZE]
-
-
 def add_round_key(block, key):
     return np.bitwise_xor(block, key)
 
@@ -78,9 +73,10 @@ class AESKey():
         return new_block
 
 
-class AESBase():
+class AES128Base():
     def __init__(self, aes_key):
         self.aes_key = aes_key
+        self.size = 128
     
     def round(self, block, key):
         pass
@@ -94,8 +90,14 @@ class AESBase():
             block = self.round(block, self.aes_key.for_round(i))
         return self.last_round(block, self.aes_key.for_round(NUM_ROUNDS))
 
+    def compute_as_long(self, long_b):
+        hex_b = hex(long_b)[2:]
+        input_state = block_from_hex(hex_b)
+        out_state = self.compute(input_state)
+        return state_to_long(out_state) 
 
-class AESCipher(AESBase):
+
+class AESCipher(AES128Base):
     def round(self, block, key):
         block = sub_bytes(block, S_BOX)
         block = shift_rows(block, SHIFT_ROWS_INDEXES)
@@ -108,7 +110,7 @@ class AESCipher(AESBase):
         return add_round_key(block, key)
 
 
-class AESDecipher(AESBase):
+class AESDecipher(AES128Base):
     def round(self, block, key):
         block = shift_rows(block, I_SHIFT_ROWS_INDEXES)
         block = sub_bytes(block, I_S_BOX)
@@ -121,16 +123,13 @@ class AESDecipher(AESBase):
         return add_round_key(block, key)
 
 
-b = block_from_hex("0123456789abcdeffedcba9876543210")
-key = block_from_hex("0f1571c947d9e8590cb7add6af7f6798")
-aes_key = AESKey(key)
-print_state_as_hex(b)
-print('-'*20)
-cipher = AESCipher(aes_key)
-c = cipher.compute(b)
-print_state_as_hex(c)
-print('-'*20)
-decipher = AESDecipher(aes_key.inverse())
-d = decipher.compute(c)
-print_state_as_hex(d)
-
+if __name__ == '__main__':
+    b = block_from_hex("0123456789abcdeffedcba9876543210")
+    key = block_from_hex("0f1571c947d9e8590cb7add6af7f6798")
+    aes_key = AESKey(key)
+    print_state_as_hex(b)
+    print('-'*20)
+    cipher = AESCipher(aes_key)
+    c = cipher.compute(b)
+    print_state_as_hex(c)
+    print('='*20)
