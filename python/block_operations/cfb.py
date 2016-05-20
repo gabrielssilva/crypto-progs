@@ -1,7 +1,7 @@
 from aes.aes import AESCipher, AESDecipher, AESKey
-from aes.debug_tools import block_from_hex
+from aes.tools import *
 
-S_BITS = 8                    # eg.: 16
+S_BITS = 16                   # eg.: 16
 S_BYTES = int(S_BITS / 8)     # eg.: 2
 S_MASK = (2 ** S_BITS) - 1    # eg.: 0xffff
 
@@ -36,6 +36,16 @@ class CFBBase():
             output.append(c)
             register = (register << S_BITS) | self.remainder(block, c)
         return output
+
+    def compute_str(self, text):
+        hex_text = ''.join([('%02x' % ord(c)) for c in text])
+        blocks = blocks_from_hex(hex_text)
+        r_blocks = self.compute(blocks)
+
+        r_text = ''
+        for block in r_blocks:
+            r_text += hex_to_str(hex(block)[2:])
+        return r_text
     
     def remainder(self, plaintext, ciphertext):
         if self.type is "cipher":
@@ -61,16 +71,16 @@ key = block_from_hex("0f1571c947d9e8590cb7add6af7f6798")
 aes_key = AESKey(key)
 cipher = AESCipher(aes_key)
 
-ccfb = CFBCipher(cipher, iv)
+cfb_cipher = CFBCipher(cipher, iv)
 blocks = blocks_from_hex("ffaa02a20335c4d8")
 print(blocks)
-c = ccfb.compute(blocks)
+c = cfb_cipher.compute(blocks)
 print(c)
 
 print('-'*40)
 
-dcfb = CFBDecipher(cipher, iv)
+cfb_decipher = CFBDecipher(cipher, iv)
 blocks = c
 print(blocks)
-c = dcfb.compute(blocks)
+c = cfb_decipher.compute(blocks)
 print(c)

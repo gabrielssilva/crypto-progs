@@ -1,5 +1,5 @@
 import numpy as np
-from .debug_tools import * 
+from .tools import *
 from .aes_constants import BLOCK_SIZE, NUM_ROUNDS, RC
 from .aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
 from .aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
