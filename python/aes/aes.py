@@ -6,6 +6,7 @@ from .aes_constants import S_BOX, SHIFT_ROWS_INDEXES, MIX_COLUMNS_T
 from .aes_constants import I_S_BOX, I_SHIFT_ROWS_INDEXES, I_MIX_COLUMNS_T
 from .galois_operations import gf_ndarray_dot
 import copy
+import codecs
 
 
 def print_as_hex(block):
@@ -96,6 +97,16 @@ class AES128Base():
         out_state = self.compute(input_state)
         return state_to_long(out_state) 
 
+    def compute_str(self, text):
+        hex_text = ''.join([('%02x' % ord(c)) for c in text])
+        r_blocks = []
+        step = BLOCK_SIZE * 2 
+        for i in range(0, len(hex_text), step):
+            block = block_from_hex(hex_text[i:i+step])
+            c_text = hex_from_block(self.compute(block))
+            r_blocks.append(hex_to_str(c_text))
+        return ''.join(r_blocks)
+
 
 class AESCipher(AES128Base):
     def round(self, block, key):
@@ -130,6 +141,7 @@ if __name__ == '__main__':
     print_state_as_hex(b)
     print('-'*20)
     cipher = AESCipher(aes_key)
+    decipher = AESDecipher(aes_key.inverse())
     c = cipher.compute(b)
     print_state_as_hex(c)
     print('='*20)

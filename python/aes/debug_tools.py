@@ -12,6 +12,18 @@ def block_from_hex(str):
     
     return block.reshape((STATE_SIZE, STATE_SIZE)).transpose()
 
+def hex_from_block(block):
+    block_str = ''
+    for cell in np.nditer(block):
+        block_str += '%02x' % cell
+    return block_str
+
+def hex_to_str(hex_text):
+    text = ''
+    for i in range(0, len(hex_text), 2):
+        text += (str(chr(int(hex_text[i:i+2], 16))))
+    return text
+
 
 def state_to_long(state):
     state_as_long = 0
