@@ -30,5 +30,31 @@ def initialization(k):
     return s
 
 
+def generate_stream(s, n_bytes):
+    stream = []
+    i = j = 0
+    while n_bytes > 0:
+        i = (i + 1) % 256
+        j = (j + s[i]) % 256
+        s[i], s[j] = s[j], s[i]
+
+        t = (s[i] + s[j]) % 256
+        stream.append(s[t])
+        n_bytes -= 1
+    return stream
+
+
+def stream_to_int(stream):
+    random_num = 0
+    for i in range(0, len(stream)):
+        random_num = (random_num << (i * 8)) | stream[i]
+    return random_num
+
+
 k = hex_str_to_key("F0CC", 2)
 s = initialization(k)
+random_stream = generate_stream(s, 2)
+random_num = stream_to_int(random_stream)
+
+print(random_stream)
+print(random_num)
