@@ -28,4 +28,4 @@ def is_prime(n, m):
     for _ in range(0, m):
         if test(n) is False: return "%s is composite" % n
     p = 1 - (1 / 4)**m
-    return "%s is probably prime, p = %s" % (n, p)
+    return "%s is probably prime, p = %f" % (n, p)

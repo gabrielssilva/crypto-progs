@@ -51,13 +51,13 @@ def find_point_order(q, E):
 
 def run():
     print("Choose a value for a")
-    a = int(input(">>> "))
+    a = int(input(">>> a = "))
 
     print("Choose a value for b")
-    b = int(input(">>> "))
+    b = int(input(">>> b = "))
 
     print("Choose a value for p")
-    p = int(input(">>> "))
+    p = int(input(">>> p ="))
 
     E = { 'a': a, 'b': b, 'p': p }
     points = find_points(E)
