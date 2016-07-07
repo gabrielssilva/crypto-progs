@@ -1,5 +1,6 @@
 from random import randint
 import hashlib
+import pickle
 
 import ecc
 import ecc_cipher
@@ -42,8 +43,55 @@ def verify(E, G, keys, n, message, signature):
         return False
 
     v = X[0] % n
-    print(X)
     return r == v
+
+
+def sign_file(E, G, keys, n):
+    print('\nEnter the input file path')
+    in_path = input('>>> ')
+    print('Enter the signature output file path')
+    out_path = input('>>> ')
+    print('Enter the public key output file path')
+    key_path = input('>>> ')
+
+    in_file = open(in_path, 'r')
+    message = in_file.read()
+    signature = sign(E, G, keys, n, message)
+    in_file.close()
+
+    out_file = open(out_path, 'wb')
+    pickle.dump(signature, out_file)
+    out_file.close()
+
+    key_file = open(key_path, 'wb')
+    pickle.dump(keys[1], key_file)
+    key_file.close()
+
+
+def verify_file(E, G, n):
+    print('\nEnter the message file path')
+    message_path = input('>>> ')
+    print('Enter the signature file path')
+    signature_path = input('>>> ')
+    print('Enter the public key file path')
+    key_path = input('>>> ')
+
+    message_file = open(message_path, 'r')
+    message = message_file.read()
+    message_file.close()
+
+    signature_file = open(signature_path, 'rb')
+    signature = pickle.load(signature_file)
+    signature_file.close()
+
+    key_file = open(key_path, 'rb')
+    p_key = pickle.load(key_file)
+    key_file.close()
+
+    if verify(E, G, (0, p_key), n, message, signature):
+        print("The signature is valid.")
+    else:
+        print("The signature is NOT valid")
 
 
 def run():
@@ -56,13 +104,20 @@ def run():
     n = 6277101735386680763835789423176059013767194773182842284081
     keys = ecc_cipher.generate_keys(E, G, n)
 
-    print('\nEnter the input file path')
-    in_path = input('>>> ')
-    print('Enter the output file path')
-    out_path = input('>>> ')
+    print('Which operation do yout want to perform?')
+    print('[1] Sign a file')
+    print('[2] Verify a file')
+    while True:
+        op = input('>>> ')
+        if op is '1':
+            sign_file(E, G, keys, n)
+            break
+        if op is '2':
+            verify_file(E, G, n)
+            break
+        else:
+            print('Invalid operation. Try again')
 
 
 if __name__ == '__main__':
-
-    keys = ecc_cipher.generate_keys(E, G, n)
     run()
