@@ -31,7 +31,11 @@ def find_lambda(q, r, E):
 
 
 def sum_points(q, r, E):
-    if q[0] == r[0] and (q[1] % E['p']) == (-r[1] % E['p']):
+    if q == (0, 0):
+        return r
+    elif r == (0,0):
+        return q
+    elif q[0] == r[0] and (q[1] % E['p']) == (-r[1] % E['p']):
         return (0, 0)
     else:
         e_lambda = find_lambda(q, r, E)

@@ -1,13 +1,16 @@
 from random import randint
+
 import ecc
 
 
 def point_times_n(E, q, n):
-    result = q
-    while n > 1:
-        result = ecc.sum_points(result, q, E)
-        n -= 1
-    return result
+    result = (0, 0)
+    point = q
+    for bit in range(n.bit_length()):
+        if (n >> bit) & 1:
+            result = ecc.sum_points(point, result, E)
+        point = ecc.sum_points(point, point, E)
+    return result 
 
 
 def generate_keys(E, G, n):
@@ -28,7 +31,7 @@ def decipher(E, C, keys):
     return ecc.sum_points(C[1], inv_secret, E)
 
 
-def run():
+def input_for_global_params():
     print("Choose a value for a")
     a = int(input(">>> a = "))
     print("Choose a value for b")
@@ -42,6 +45,12 @@ def run():
     print("Choose y for the base point G") 
     g_y = int(input(">>> Gy = "))
     G = (g_x, g_y) 
+
+    return E, G
+
+
+def run():
+    E, G = input_for_global_params()
 
     print("\nChoose x for the input point P") 
     p_x = int(input(">>> Px = "))
@@ -66,6 +75,4 @@ def run():
 
 
 if __name__ == '__main__':
-    E = { 'a': 1, 'b': 1, 'p': 23 }
-    G = (0, 1)
     run()
